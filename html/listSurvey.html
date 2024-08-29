@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top" />
+    <style>
+      body {
+        background-color: #f0ebf8;
+        font-family: "Noto Sans", sans-serif;
+        padding-top: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        overscroll-behavior-y: contain;
+        padding-bottom: 180px;
+      }
+      .container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background-color: #fff;
+        padding: 20px;
+        padding-top: 0px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        height: fit-content;
+        width: 90%;
+        max-width: 393px;
+      }
+      .top-bar {
+        background-color: rgb(103, 58, 183);
+        color: rgba(255, 255, 255, 1);
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        height: 10px;
+        left: -1px;
+        position: absolute;
+        top: -1px;
+        width: calc(100% + 2px);
+      }
+      .list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-top: 24px;
+        font-size: 18px;
+        font-weight: 600;
+      }
+      .form-row {
+        text-align: left;
+        margin-bottom: 10px;
+      }
+      .label {
+        display: block;
+        font-weight: bold;
+      }
+      .input {
+        font-size: 18px;
+        background-color: #fff;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 95%;
+      }
+      .questionForm {
+        padding-block: 28px;
+        display: none;
+      }
+      .return-btn {
+        fontsize: 24px;
+        padding: 10px 20px;
+        background-color: #a0a0a0;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .submit-btn {
+        padding: 10px 20px;
+        background-color: #7349bd;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .submit-btn:hover {
+        background-color: #6238ac;
+      }
+      .loader-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+      }
+      .loader {
+        display: none;
+        border: 4px solid #f3f3f3; /* 회색 테두리 */
+        border-top: 4px solid #7349bd;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite; /* 회전 애니메이션 */
+      }
+      .return-loader {
+        display: none;
+        border: 4px solid #a0a0a0; /* 회색 테두리 */
+        border-top: 4px solid #b1b1b1;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite; /* 회전 애니메이션 */
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        } /* 회전 시작점 */
+        100% {
+          transform: rotate(360deg);
+        } /* 회전 종료점 */
+      }
+      .announce {
+        font-size: 17px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="top-bar"></div>
+      <form
+        class="questionForm announce"
+        id="questionForm1"
+        name="questionForm1"
+      >
+        응답 감사합니다!<br /><br />이제부터 선생님께서 이번 학기에 추구하는
+        목표에 대해 질문하도록 하겠습니다.<br /><br />
+        다음 주부터는 '곧 작성할 목표'에 대해서 얼마나 진전이 있었는지 질문할
+        예정입니다.<br /><br />목표는 이번 주에만 작성할 수 있으며, 다음
+        주부터는 수정할 수 없습니다.<br /><br />다음으로 넘어가,<br />주의사항을
+        찬찬히 읽고 응답해주시기 바랍니다
+      </form>
+      <form
+        class="questionForm announce"
+        id="questionForm2"
+        name="questionForm2"
+      ></form>
+      <form
+        class="questionForm announce"
+        id="questionForm3"
+        name="questionForm3"
+      ></form>
+      <form
+        class="questionForm announce"
+        id="questionForm4"
+        name="questionForm4"
+      ></form>
+      <form class="questionForm" id="questionForm5" name="questionForm5">
+        <h3>내가 이번 한 학기 동안 꾸준히 추구할 목표는...</h3>
+      </form>
+      <form class="questionForm" id="questionForm6" name="questionForm6">
+        <h3>
+          선생님께서 적어주신 목표 5개가 다음과 같습니다.<br /><br />
+          이 목표들은 일시적인 목표가 아니라,<br />이번 학기 전반에 걸쳐 꾸준히
+          추구할 목표가 맞습니까?
+        </h3>
+        <div class="list" id="list"></div>
+      </form>
+      <div class="loader-container" id="loader-container">
+        <button
+          type="button"
+          class="return-btn"
+          id="return-btn"
+          onclick="onClickReturnButton()"
+          value="returnToPage"
+        >
+          돌아가기
+        </button>
+        <button
+          value="다음"
+          onclick="onClickNextButton(event)"
+          class="submit-btn"
+          id="next-btn"
+        >
+          다음
+        </button>
+        <div class="return-loader" id="return-loader"></div>
+        <div class="loader" id="loader"></div>
+      </div>
+    </div>
+    <script>
+      document.addEventListener(
+        "touchmove",
+        function (event) {
+          if (window.scrollY === 0) {
+            event.preventDefault();
+          }
+        },
+        { passive: false }
+      );
+
+      var listFormNumber = 1;
+
+      //here: 입력 개수와 입력 칸을 만드는 곳입니다. (inputLabelName: 입력의 종류 명, inputCount: 입력의 개수)
+      //ex) inputLabelName = 과일, inputCount = 10 이라면, '과일을 입력하는 10개의 문장'이 설문자에게 주어집니다.
+      var inputLabelName = "목표";
+      var inputCount = 5;
+
+      function isInputAllValid() {
+        const forms = Array.from(document.forms);
+        let isValid = true;
+
+        if (!forms[listFormNumber - 1].reportValidity()) {
+          isValid = false;
+        }
+
+        return isValid;
+      }
+
+      function returnToBasicSurveyPage() {
+        google.script.run
+          .withSuccessHandler(function (html) {
+            document.open();
+            document.write(html);
+            document.close();
+          })
+          .getBasicSurveyPage();
+      }
+
+      function returnToLastWeekSurveyPage() {
+        google.script.run
+          .withSuccessHandler(function (html) {
+            document.open();
+            document.write(html);
+            document.close();
+          })
+          .getLastWeekSurveyPage();
+      }
+
+      function onClickReturnButton() {
+        if (listFormNumber > 1) {
+          const questionForm = document.getElementById(
+            `questionForm${listFormNumber}`
+          );
+          questionForm.style.display = "none";
+
+          listFormNumber -= 1;
+
+          const pastQuestionForm = document.getElementById(
+            `questionForm${listFormNumber}`
+          );
+          pastQuestionForm.style.display = "block";
+
+          topFunction();
+        } else {
+          document.getElementById("return-btn").style.display = "none";
+          document.getElementById("next-btn").style.display = "none";
+          document.getElementById("return-loader").style.display = "block";
+
+          returnToBasicSurveyPage();
+        }
+      }
+
+      function onClickNextButton(event) {
+        event.preventDefault();
+
+        const isValidToSubmit = isInputAllValid();
+
+        if (!isValidToSubmit) {
+          return;
+        }
+
+        if (listFormNumber < 6) {
+          const questionForm = document.getElementById(
+            `questionForm${listFormNumber}`
+          );
+          questionForm.style.display = "none";
+
+          listFormNumber += 1;
+
+          const nextQuestionForm = document.getElementById(
+            `questionForm${listFormNumber}`
+          );
+          nextQuestionForm.style.display = "block";
+
+          topFunction();
+        } else {
+          document.getElementById("return-btn").style.display = "none";
+          document.getElementById("next-btn").style.display = "none";
+          document.getElementById("loader").style.display = "block";
+
+          const fruits = [];
+          const titles = [];
+
+          for (let i = 1; i <= inputCount; i++) {
+            const fruitId = `${inputLabelName}${i}`;
+            const fruitElement = document.getElementById(fruitId);
+            const fruitValue = fruitElement.value;
+            const title = fruitElement.name;
+            titles.push(title);
+            fruits.push(fruitValue);
+          }
+
+          fruitList = fruits;
+          fruitListTitles = titles;
+
+          google.script.run
+            .withSuccessHandler(function (html) {
+              document.open();
+              document.write(html);
+              document.close();
+            })
+            .getAdvancedListSurveyPage();
+        }
+      }
+
+      function createTextInputElement(index, labelName) {
+        const formRow = document.createElement("div");
+        formRow.className = "form-row";
+
+        const label = document.createElement("label");
+        const labelText = `${labelName} ${index}:`;
+        label.innerText = labelText;
+        label.for = `${labelName}${index}`;
+        label.className = "label";
+
+        const input = document.createElement("input");
+        input.required = true;
+        input.type = "text";
+        input.id = `${labelName}${index}`;
+        input.name = `${labelName}${index}`;
+        input.className = "input";
+
+        formRow.appendChild(label);
+        formRow.appendChild(input);
+
+        const list = document.getElementById("list");
+        const listElement = document.createElement("div");
+
+        list.appendChild(listElement);
+
+        input.addEventListener("change", (event) => {
+          listElement.innerText = `${index}) ${event.target.value}`;
+        });
+
+        return formRow;
+      }
+
+      function createTextInputElements(labelName, count) {
+        const questionFormContainer = document.getElementById("questionForm5");
+
+        for (let i = 1; i <= count; i++) {
+          const inputElement = createTextInputElement(i, labelName);
+
+          questionFormContainer.appendChild(inputElement);
+        }
+      }
+
+      function initializeForms() {
+        const questionForm2 = document.getElementById("questionForm2");
+        const questionForm3 = document.getElementById("questionForm3");
+        const questionForm4 = document.getElementById("questionForm4");
+
+        questionForm2.innerHTML = `선생님께서 일반적으로 추구하는 목표가 무엇인지 궁금합니다.<br></br>특히, 교사로서 학교에서,<br><strong>이번 한 학기에 걸쳐 꾸준히</strong> 추구할 목표 5개를 적어주세요.`;
+
+        questionForm3.innerHTML = `<주의점><br/>다음 주부터는 한 주 동안 이 다섯 개 목표에 대해 얼마나 달성하였는지 질문할 예정입니다.<br/>그러므로, 이번 한 학기에 걸쳐 꾸준히 추구할 목표를 작성하는 것이 중요합니다.<br/><br/>단기간에 끝낼 수 있는 목표는 적절하지 않습니다.<br/>예로, '내일까지 공문 3개 기안하기'는 중요한 목표일 수는 있지만, 한 학기에 걸쳐 추구하는 목표는 아닙니다.<br/>반면, '지난 학기 보다 교실 깨끗이 하기' 와 같은 목표는 한 학기에 걸쳐 추구하기에 적절할 수 있습니다.`;
+
+        questionForm4.innerHTML = `선생님께서 이번 학기에 어떤 목표를 이루고 싶은지 잠시 생각하여 주시고,<br/>다음으로 넘어가 5개의 목표를 작성해 주세요.`;
+
+        questionForm1.style.display = "block";
+
+        createTextInputElements(inputLabelName, inputCount);
+      }
+
+      initializeForms();
+    </script>
+  </body>
+</html>

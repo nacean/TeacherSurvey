@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top" />
+    <style>
+      body {
+        background-color: #f0ebf8;
+        font-family: "Noto Sans", sans-serif;
+        padding-top: 20px;
+        padding-bottom: 180px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        overscroll-behavior-y: contain;
+        height: 100%;
+      }
+      .top-bar {
+        background-color: rgb(103, 58, 183);
+        color: rgba(255, 255, 255, 1);
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        height: 10px;
+        left: -1px;
+        position: absolute;
+        top: -1px;
+        width: calc(100% + 2px);
+      }
+      .question-main-title-normal {
+        font-size: 19px;
+        font-weight: 500;
+      }
+      .question-main-title {
+        font-size: 19px;
+        font-weight: 600;
+      }
+      .question-title {
+        font-size: 18px;
+      }
+      .previousContainer {
+        max-width: 393px;
+        position: relative;
+        height: fit-content;
+      }
+      .previousFruitList {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 18px;
+        font-weight: 600;
+      }
+      .question-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .questionForm {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        margin-bottom: 24px;
+      }
+      .list {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 24px;
+        padding: 20px;
+        padding-block: 24px;
+      }
+      .list-element {
+        font-size: 20px;
+        font-weight: 600;
+      }
+      .form-container {
+        display: none;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .tree-container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .ratingContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .ratingQuestion {
+        font-weight: 700;
+      }
+      .ratingRange {
+        display: flex;
+        justify-content: space-between;
+        color: #ababab;
+      }
+      .ratings {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+      .radioButton {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+      }
+      .verticalRadioButton {
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-between;
+      }
+      .normalRadioContainer {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .return-btn {
+        fontsize: 24px;
+        padding: 10px 20px;
+        background-color: #a0a0a0;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .return-btn:hover {
+        background-color: #b1b1b1;
+      }
+      .next-btn {
+        fontsize: 24px;
+        padding: 10px 20px;
+        background-color: #7349bd;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .next-btn:hover {
+        background-color: #6238ac;
+      }
+      .loader-container {
+        display: none;
+        align-items: center;
+        gap: 8px;
+      }
+      .loader {
+        display: none;
+        border: 4px solid #f3f3f3; /* 회색 테두리 */
+        border-top: 4px solid #7349bd;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite; /* 회전 애니메이션 */
+      }
+      .return-loader {
+        display: none;
+        border: 4px solid #a0a0a0; /* 회색 테두리 */
+        border-top: 4px solid #b1b1b1;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite; /* 회전 애니메이션 */
+      }
+      .previous-loader {
+        border: 4px solid #f3f3f3; /* 회색 테두리 */
+        border-top: 4px solid #7349bd;
+        border-radius: 50%;
+        width: 120px;
+        height: 120px;
+        animation: spin 1s linear infinite; /* 회전 애니메이션 */
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        } /* 회전 시작점 */
+        100% {
+          transform: rotate(360deg);
+        } /* 회전 종료점 */
+      }
+      .hide {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="previous-loader" id="previous-loader"></div>
+    <div class="previousContainer" id="previousContainer">
+      <div class="form-container" id="form-container1">
+        <form class="list" id="questionForm1" name="questionForm1">
+          <div class="top-bar"></div>
+        </form>
+      </div>
+      <div class="form-container" id="form-container2">
+        <div class="list">
+          <div class="top-bar"></div>
+          <p>
+            <주의점><br />
+            매주 목표를 달성한 정도는 다를 수 있습니다.<br />
+            예로 대학생이라면, '공부 열심히 하기'라는 목표를 세웠을 수
+            있습니다.<br />
+            이 때 첫 주에는 실제로 공부를 열심히 하여 9점, 둘째 주에 사정이 있어
+            공부를 못하여 2점, 셋째 주에는 중간 정도 이루어 5점...<br />
+            등으로 매주 응답이 달라질 수 있습니다.<br /><br />
+            <strong>그 진전 정도가 꼭 누적되는 것은 아닙니다.</strong>
+            <br /><br />
+            <strong>지난 주에 한정하여,</strong> 5개의 목표에 대해 각각 얼마나
+            이루었는지 응답해주시기 바랍니다.
+          </p>
+        </div>
+        <form class="questionForm" id="questionForm2" name="questionForm2">
+          <div class="top-bar"></div>
+        </form>
+      </div>
+      <div class="form-container" id="form-container3">
+        <div class="list">
+          <div class="top-bar"></div>
+          <p>
+            <주의점> 노력의 양도 꼭 누적되는 것은 아닙니다.<br /><br />
+            <strong>지난 주에 한정하여,</strong> 5개의 목표에 대해 각각 얼마나
+            이루었는지 응답해주시기 바랍니다.
+          </p>
+        </div>
+        <form class="questionForm" id="questionForm3" name="questionForm3">
+          <div class="top-bar"></div>
+        </form>
+      </div>
+      <div class="form-container" id="form-container4">
+        <form
+          class="questionForm"
+          id="questionForm4"
+          name="questionForm4"
+        ></form>
+      </div>
+    </div>
+    <div class="loader-container" id="loader-container">
+      <button
+        type="button"
+        class="return-btn"
+        id="return-btn"
+        onclick="onClickReturnButton()"
+        value="returnToPage"
+      >
+        돌아가기
+      </button>
+      <button
+        onclick="onClickNextButton(event)"
+        class="next-btn"
+        id="next-btn"
+        value="toQuestion"
+      >
+        다음
+      </button>
+      <div class="return-loader" id="return-loader"></div>
+      <div class="loader" id="loader"></div>
+    </div>
+    <script>
+      var lastWeekFormNumber = 1;
+
+      function isInputAllValid() {
+        const forms = Array.from(document.forms);
+        let isValid = true;
+
+        if (!forms[lastWeekFormNumber - 1].reportValidity()) {
+          isValid = false;
+        }
+
+        return isValid;
+      }
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      function createRadioButton(name, value, mainIndex) {
+        const radioButton = document.createElement("div");
+        radioButton.className = "radioButton";
+
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        if (mainIndex) {
+          radio.name = `${name}${mainIndex + 1}`;
+        } else {
+          radio.name = name;
+        }
+        radio.value = value;
+        radio.required = true;
+
+        const label = document.createElement("div");
+        label.innerText = value;
+
+        radioButton.appendChild(radio);
+        radioButton.appendChild(label);
+
+        return radioButton;
+      }
+
+      //here: 점수가 아닌 선택형 질문들 (질문 내용, 고를 수 있는 답변들)
+      //ex) questionForm.appendChild(createNormalRadioQuestion("설문조사를 자주 하시나요?",["자주 한다","가끔 한다","안한다"]));
+      function createNormalRadioQuestion(question, values) {
+        const container = document.createElement("div");
+        container.className = "question-container";
+
+        const questionTitle = document.createElement("div");
+        questionTitle.innerText = question;
+        questionTitle.className = "question-main-title";
+
+        const radioContainer = document.createElement("div");
+        radioContainer.className = "normalRadioContainer";
+
+        values.forEach((value, index) => {
+          const radio = createRadioButton(question, value);
+          radioContainer.appendChild(radio);
+        });
+
+        container.appendChild(questionTitle);
+        container.appendChild(radioContainer);
+
+        return container;
+      }
+
+      //here: 단일 점수 질문 (질문 내용, 점수 개수)
+      //ex) questionForm.appendChild(createRatingQuestion("설문조사를 얼마나 정직하게 하는지 골라주세요", 8));
+      function createRatingQuestion(question, ratingCount, index, mainIndex) {
+        const ratingContainer = document.createElement("div");
+        ratingContainer.className = "ratingContainer";
+
+        const ratingQuestion = document.createElement("div");
+        ratingQuestion.className = "question-title";
+        ratingQuestion.innerText = index ? `${index}) ${question}` : question;
+
+        const ratingRange = document.createElement("div");
+        ratingRange.innerHTML = "<div>전혀 아니다</div><div>매우 그렇다</div>";
+        ratingRange.className = "ratingRange";
+
+        const ratings = document.createElement("div");
+        ratings.className = "ratings";
+
+        const maxRatingCount = ratingCount ? ratingCount : 9;
+
+        for (let i = 1; i <= maxRatingCount; i++) {
+          if (mainIndex) {
+            const ratingRadio = createRadioButton(question, i, mainIndex);
+            ratings.appendChild(ratingRadio);
+          } else {
+            const ratingRadio = createRadioButton(question, i);
+            ratings.appendChild(ratingRadio);
+          }
+        }
+
+        ratingContainer.appendChild(ratingQuestion);
+        ratingContainer.appendChild(ratingRange);
+        ratingContainer.appendChild(ratings);
+
+        return ratingContainer;
+      }
+
+      //here: 대질문과 꼬리 점수 질문이 있는 질문들. (메인 제목, 질문 내용들, 점수 개수)
+      //ex) questionForm.appendChild(createTreeRatingQuestion("어떤 분야의 설문조사를 자주하시는지 알려주세요", ["컴퓨터","심리","음악"], 9));
+      function createTreeRatingQuestion(
+        mainTitle,
+        questions,
+        ratingCount,
+        mainIndex,
+        normalTitle
+      ) {
+        const treeContainer = document.createElement("div");
+        treeContainer.className = "tree-container";
+
+        const title = document.createElement("div");
+        title.innerHTML = mainTitle;
+        title.className = normalTitle
+          ? "question-main-title-normal"
+          : "question-main-title";
+
+        treeContainer.appendChild(title);
+
+        let number = 1;
+        questions.forEach((question, index) => {
+          if (question) {
+            const ratingQuestion = createRatingQuestion(
+              question,
+              ratingCount,
+              number,
+              mainIndex
+            );
+            treeContainer.appendChild(ratingQuestion);
+            number += 1;
+          } else {
+            const spaceElement = document.createElement("br");
+            treeContainer.appendChild(spaceElement);
+          }
+        });
+
+        return treeContainer;
+      }
+
+      function createPreviousFruitListElement(previousFruitList) {
+        const listContainer = document.createElement("div");
+        listContainer.className = "list";
+
+        const topBar = document.createElement("div");
+        topBar.className = "top-bar";
+
+        listContainer.appendChild(topBar);
+
+        previousFruitList.forEach((fruit, index) => {
+          const fruitElement = document.createElement("div");
+          fruitElement.className = "list-element";
+          fruitElement.innerText = `${index + 1}) ${fruit}`;
+
+          listContainer.appendChild(fruitElement);
+        });
+
+        return listContainer;
+      }
+
+      function createPreviousFruitListWithAnnounceElement(previousFruitList) {
+        const questionForm1 = document.getElementById("questionForm1");
+
+        const previousFruitListElement = document.createElement("div");
+        const previousFruitListAnnounce = document.createElement("p");
+        const previousFruitListFootAnnounce = document.createElement("p");
+
+        //here: 설문조사에 대한 설명을 적는 곳입니다.
+        //필요시 변경해주세요. (\n은 줄바꿈을 하는 기능입니다.)
+        previousFruitListAnnounce.innerHTML =
+          "이번 주에는 첫 주에 적어주신 목표 5개에 대한 설문이 이루어질 예정입니다.<br/>선생님께서 적어주신 목표 5개는 다음과 같습니다.";
+        previousFruitListFootAnnounce.innerText =
+          "지난 한 주간 어떤 일이 있었는지 잠시 회상해보시고, 다음으로 넘어가 주세요.";
+
+        previousFruitListElement.className = "previousFruitList";
+        previousFruitListElement.id = "previousFruitList";
+        previousFruitListElement.appendChild(previousFruitListAnnounce);
+
+        previousFruitList.forEach((fruit, index) => {
+          const previousFruitElement = document.createElement("div");
+          previousFruitElement.innerText = `${index + 1}) ${fruit}`;
+
+          previousFruitListElement.appendChild(previousFruitElement);
+        });
+
+        previousFruitListElement.appendChild(previousFruitListFootAnnounce);
+
+        questionForm1.appendChild(previousFruitListElement);
+
+        const formContainer1 = document.getElementById("form-container1");
+
+        formContainer1.style.display = "flex";
+      }
+
+      function createName(name) {
+        const nameElement = document.createElement("h2");
+        nameElement.innerText = name;
+        nameElement.style.textAlign = "center";
+
+        return nameElement;
+      }
+
+      function createQuestions(previousFruitList) {
+        previousFruitList.forEach((previousFruit, index) => {
+          const listContainer = document.createElement("div");
+          listContainer.className = "list";
+
+          const nameElement = createName(previousFruit);
+          const questionForm2 = document.getElementById("questionForm2");
+
+          listContainer.appendChild(nameElement);
+          listContainer.appendChild(
+            createTreeRatingQuestion(
+              "한 주 동안, 나는...",
+              [
+                "이 목표에 대해서 상당한 진전을 이루었다.",
+                "이 목표를 충분히 달성했다.",
+              ],
+              9,
+              index
+            )
+          );
+          questionForm2.appendChild(listContainer);
+        });
+
+        previousFruitList.forEach((previousFruit, index) => {
+          const listContainer = document.createElement("div");
+          listContainer.className = "list";
+
+          const nameElement = createName(previousFruit);
+          const questionForm3 = document.getElementById("questionForm3");
+
+          listContainer.appendChild(nameElement);
+          listContainer.appendChild(
+            createRatingQuestion(
+              "한 주 동안, 나는 이 목표를 이루기 위해 매우 노력하였다.",
+              9,
+              undefined,
+              index
+            )
+          );
+          questionForm3.appendChild(listContainer);
+        });
+
+        const listContainer = document.createElement("div");
+        listContainer.className = "list";
+        const topBar = document.createElement("div");
+        topBar.className = "top-bar";
+        listContainer.appendChild(topBar);
+        listContainer.appendChild(
+          createTreeRatingQuestion(
+            "전반적인 교직 경험이 아니라, <strong>지난 한 주 간</strong> 선생님께서 경험한 일을 바탕으로 응답해주시기 바랍니다.<br/><br/><strong>지난 한 주</strong>를 돌아 볼 때, 다음의 내용에 대해서 얼마나 동의하십니까?",
+            [
+              "직장에서, 내가 수행하는 일에 대한 선택권과 자유가 있음을 느낀다.",
+              "내가 직무를 수행하면서 내리는 의사결정은 정말로 내가 원하는 것들이 반영된다고 느낀다.",
+              "나는 직무를 수행함에 있어서 나의 선택들이 진정한 나를 표현한다고 느낀다.",
+              "나는 정말로 나에게 흥미를 주는 일들을 해오고 있다고 생각한다.",
+              null,
+              "나는 나의 직무에 대해 잘 해낼 수 있다는 자신감을 느낀다.",
+              "나는 내가 하는 일에 대해 능숙하다고 생각한다.",
+              "직무를 수행할 때, 나는 나의 목표를 성취할 수 있는 능력이 있다고 생각한다.",
+              null,
+              "나는 직장에서 내가 관심을 주는 사람들은 나에게도 관심을 준다고 느낀다.",
+              "나는 직장에서 내가 관심을 주고받는 사람들과 서로 연결되어 있다고 느낀다.",
+              "직장에서, 나는 나에게 중요한 사람들과 친밀하고 연결되어 있다는 느낌을 받는다.",
+              "나는 직장에서 같이 시간을 보내는 사람들에게 따스함을 느낀다.",
+            ],
+            9,
+            undefined,
+            true
+          )
+        );
+        questionForm4.appendChild(listContainer);
+      }
+
+      function initializeBigQuestions() {
+        google.script.run
+          .withSuccessHandler(function (previousFruitListState) {
+            //const randomPreviousFruitList = shuffleArray(previousFruitListState);
+            previousFruitList = previousFruitListState;
+
+            createPreviousFruitListWithAnnounceElement(previousFruitList);
+
+            createQuestions(previousFruitList);
+
+            const loaderContainer = document.getElementById("loader-container");
+            loaderContainer.style.display = "flex";
+            const previousLoader = document.getElementById("previous-loader");
+            previousLoader.style.display = "none";
+          })
+          .getPreviousWeekFruitList(username, phone, nowWeek);
+      }
+
+      function onClickReturnButton() {
+        if (lastWeekFormNumber > 1) {
+          const questionForm = document.getElementById(
+            `form-container${lastWeekFormNumber}`
+          );
+          questionForm.style.display = "none";
+
+          lastWeekFormNumber -= 1;
+
+          const pastQuestionForm = document.getElementById(
+            `form-container${lastWeekFormNumber}`
+          );
+          pastQuestionForm.style.display = "flex";
+
+          topFunction();
+        } else {
+          // show loading
+          document.getElementById("next-btn").style.display = "none";
+          document.getElementById("return-btn").style.display = "none";
+          document.getElementById("return-loader").style.display = "block";
+
+          returnToLogInPage();
+        }
+      }
+
+      function onClickNextButton(event) {
+        event.preventDefault();
+
+        const isValidToSubmit = isInputAllValid();
+
+        if (!isValidToSubmit) {
+          return;
+        }
+
+        if (lastWeekFormNumber < 4) {
+          const questionForm = document.getElementById(
+            `form-container${lastWeekFormNumber}`
+          );
+          questionForm.style.display = "none";
+
+          lastWeekFormNumber += 1;
+
+          const nextQuestionForm = document.getElementById(
+            `form-container${lastWeekFormNumber}`
+          );
+          nextQuestionForm.style.display = "flex";
+
+          topFunction();
+        } else {
+          submit(event);
+        }
+      }
+
+      function returnToLogInPage() {
+        google.script.run
+          .withSuccessHandler(function (html) {
+            document.open();
+            document.write(html);
+            document.close();
+          })
+          .getLogInPage();
+      }
+
+      function submit(event) {
+        // show loading
+        document.getElementById("next-btn").style.display = "none";
+        document.getElementById("return-btn").style.display = "none";
+        document.getElementById("loader").style.display = "block";
+
+        const questionResponses = [];
+        const titles = [];
+
+        const forms = Array.from(document.forms);
+
+        forms.forEach((form) => {
+          Array.from(form).forEach((element) => {
+            if (element.type === "radio") {
+              if (element.checked) {
+                titles.push(element.name);
+                questionResponses.push(element.value);
+              }
+            } else {
+              titles.push(element.name);
+              questionResponses.push(element.value);
+            }
+          });
+        });
+
+        previousResponses = questionResponses;
+        previousResponsesTitles = titles;
+
+        if (nowWeek === maxWeek - 1) {
+          google.script.run
+            .withSuccessHandler(function (html) {
+              document.open();
+              document.write(html);
+              document.close();
+            })
+            .getSocialSurveyPage();
+        } else if (nowWeek === maxWeek) {
+          google.script.run
+            .withSuccessHandler(function (html) {
+              document.open();
+              document.write(html);
+              document.close();
+            })
+            .getLastSurveyPage();
+        } else {
+          google.script.run
+            .withSuccessHandler(function (html) {
+              document.open();
+              document.write(html);
+              document.close();
+            })
+            .getFinishPage();
+        }
+      }
+
+      initializeBigQuestions();
+    </script>
+  </body>
+</html>

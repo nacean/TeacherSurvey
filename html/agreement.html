@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+        body {
+            background-color : #F0EBF8;
+            font-family: 'Noto Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overscroll-behavior-y: contain;
+            height : fit-content;
+            padding-top : 24px;
+            padding-bottom : 180px;
+            gap : 24px;
+        }
+        .body-container {
+          max-width : 393px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          height : fit-content;
+          gap : 24px;
+        }
+        .container {
+          position : relative;
+          display: flex;
+          flex-direction : column;
+          background-color: #fff;
+          padding: 20px;
+          border-radius: 10px;
+          gap : 24px;
+        }
+        .top-bar {
+          background-color: rgb(103, 58, 183);
+          color: rgba(255, 255, 255, 1);
+          border-top-left-radius: 8px;
+          border-top-right-radius: 8px;
+          height: 10px;
+          left: -1px;
+          position: absolute;
+          top: -1px;
+          width: calc(100% + 2px);
+        }
+        .terms-container {
+          padding : 8px;
+          box-sizing : border-box;
+          display : flex;
+          flex-direction : column;
+          gap : 8px;
+          width : 100%;
+          background-color : #fafafa;
+          border : 1px solid #b1b1b1;
+        }
+        .terms-header {
+          display: flex;
+          justify-content : space-between;
+          align-items : center;
+          color: #616161;
+        }
+        .arrow-container {
+          display: flex;
+          align-items : center;
+          gap : 4px;
+        }
+        .arrow {
+          cursor: pointer;
+        }
+        .terms-checkbox {
+          display: flex;
+          align-items : center;
+          gap : 4px;
+        }
+        .agree-checkbox {
+          width : 16px;
+          height : 16px;
+        }
+        .terms {
+          display: none;
+          background-color: #fff;
+          border-radius: 2px;
+          padding : 8px;
+          box-sizing : border-box;
+          font-size : 12px;
+          color : #a0a0a0;
+          border : 1px solid #e0e0e0;
+        }
+        .return-btn {
+          fontSize : 24px;
+          padding: 10px 20px;
+          background-color: #A0A0A0;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+        }
+        .submit-btn {
+          padding: 10px 20px;
+          background-color: #e0e0e0;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+        }
+        .loader-container {
+          display : flex;
+          justify-content: center;
+          align-items: center;
+          gap : 8px;
+        }
+        .loader {
+          display : none;
+          border: 4px solid #f3f3f3; /* 회색 테두리 */
+          border-top: 4px solid #7349BD;
+          border-radius: 50%;
+          width: 30px;
+          height: 30px;
+          animation: spin 1s linear infinite; /* 회전 애니메이션 */
+        }
+        .return-loader {
+          display: none;
+          border: 4px solid #A0A0A0; /* 회색 테두리 */
+          border-top: 4px solid #B1B1B1;
+          border-radius: 50%;
+          width: 30px;
+          height: 30px;
+          animation: spin 1s linear infinite; /* 회전 애니메이션 */
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); } /* 회전 시작점 */
+          100% { transform: rotate(360deg); } /* 회전 종료점 */
+        }
+    </style>
+</head>
+  <body>
+    <div class="body-container container">
+      <div class="top-bar"></div>
+      <form class="questionForm" id="questionForm">
+        <p>안녕하세요?
+          <br/>바쁘신 와중에도 연구에 참여해 주셔서 감사드립니다.<br/>
+본 연구는 현직 교사가 추구하는 목표에 대한 연구입니다.<br/><br/>
+연구에 참여하시게 되면,<br/>
+<strong>1주일 단위로, 약 4주에 걸쳐, 반복적으로 참여하시게 됩니다.</strong><br/>
+<br/>첫 주인 오늘, 질문의 양이 가장 많습니다. 다음 주 부터는 훨씬 적은 양의 질문이 제공됩니다.
+<br/><br/>이번 주는 <strong>15분</strong> 이내의 시간이 걸리며,
+<br/>둘째, 셋째 주에는 <strong>2분</strong> 이내의 시간이 걸립니다.
+<br/>마지막 주에는 <strong>10분</strong> 내외의 시간이 소요됩니다.
+<br/><br/>선생님께서 입력해주신 모든 내용은 익명으로 처리되며, 연구 이외의 목적으로는 사용되지 않습니다.<br/>
+자세한 내용은 아래 설명문을 참고해주시기 바랍니다.<br/><br/>
+연구에 참여해주셔서 다시 한번 깊이 감사드리며,
+<br/>문의사항이 있으시다면 아래로 연락 주시기 바랍니다.<br/><br/>
+연구 책임자: 서울대학교 교육학과 박사수료 이빈<br/>
+010-7521-2857, playwhat@snu.ac.kr</p>
+        <div class="terms-container" id="terms-container">
+          <div class="terms-header" id="terms-header">
+            <div class="arrow-container" id="arrow-container">
+              <div id="toggle-arrow" class="arrow" value="false" onclick="onClickArrowButton(event)">▶</div>
+              <div>설명문 읽고, 연구 참여 동의하기</div>
+            </div>
+            <div class="terms-checkbox" id="terms-checkbox">
+              <input type="checkbox" class="agree-checkbox" id="agree-checkbox" onchange="onChangeCheckBox(event)"></input>
+              <div>동의합니다.</div>
+            </div>
+          </div>
+          <div class="terms" id="terms">
+          </div>
+        </div>
+      </form>
+      <div class="loader-container" id="loader-container">
+            <button value="다음" onclick="onClickNextButton(event)" class="submit-btn" id="next-btn" disabled>다음</button>
+            <div class="loader" id="loader"></div>
+      </div>
+    </div>
+    <script>
+      function isInputAllValid() {
+        const forms = Array.from(document.forms);
+        let isValid = true;
+
+        forms.forEach((form)=> {
+          if(!form.reportValidity()) {
+            isValid = false;
+          }
+        });
+
+        return isValid;
+      }
+
+      function onClickArrowButton(event) {
+        event.stopPropagation();
+        const arrow = document.getElementById("toggle-arrow");
+        const terms = document.getElementById("terms");
+        const isOpen = event.target.value;
+
+        if(isOpen) {
+          arrow.innerText = "▶";
+          terms.style.display = "none";
+        } else {
+          arrow.innerText = "▼";
+          terms.style.display = "block";
+        }
+        arrow.value = !isOpen;
+      }
+
+      function onChangeCheckBox(event) {
+        event.stopPropagation();
+
+        const checked = event.target.checked;
+        const nextButton = document.getElementById("next-btn");
+        
+        nextButton.style.backgroundColor = checked ? "#7349BD" : "#e0e0e0";
+        nextButton.disabled = !checked;
+      }
+
+      function onClickNextButton(event) {
+        event.preventDefault();
+
+        // show loading
+        document.getElementById("next-btn").style.display="none";
+        document.getElementById("loader").style.display="block";
+
+        google.script.run.withSuccessHandler(function(html) {
+          document.open();
+          document.write(html);
+          document.close();
+        }).getLogInPage();
+      }
+
+      function initializeTerms() {
+        const termText =
+        `
+연구참여자용 설명문
+
+연구 과제명 : 교사가 추구하는 목표 내용에 따른 안녕감과 교수 행동의 변화
+연구 책임자명 : 이빈(서울대학교 사범대학 교육학과 박사수료)
+
+이 연구는 ‘교사가 추구하는 목표와 안녕감 사이 관계’에 대한 연구입니다. 귀하는 현직으로 근무 중인 교사이기 때문에 이 연구에 참여하도록 권유 받았습니다. 이 연구는 자발적으로 참여 의사를 밝히신 분에 한하여 수행 될 것이며, 귀하께서는 참여 의사를 결정하기 전에 본 연구가 왜 수행되는지 그리고 연구의 내용이 무엇과 관련 있는지 이해하는 것이 중요합니다. 다음 내용을 신중히 읽어보신 후 참여 의사를 밝혀 주시길 바라며, 필요하다면 가족이나 친구들과 의논해 보십시오. 만일 어떠한 질문이 있다면 담당 연구원이 자세하게 설명해 줄 것입니다. 
+
+1. 이 연구는 왜 실시합니까?
+
+이 연구의 목적은 교사는 어떤 목표를 추구하며, 교사가 추구하는 목표의 속성에 따라 안녕감과 교수 행동에서 어떠한 차이를 보이는지 탐색하는 것입니다.
+
+2. 얼마나 많은 사람이 참여합니까?
+
+초, 중, 고교 교사 250명의 사람이 참여할 것입니다.
+
+3. 만일 연구에 참여하면 어떤 과정이 진행됩니까?
+
+ 이 연구에서는 내용은 같지만 참여 기간이 다른 두 종의 연구가 동시에 진행되며, 참여자는 한 종류에만 참여할 수 있습니다. 연구 참여자에게 전달된 모집문을 이용해 설문지 링크에 접속하면, 7일 단위로 4회 응답하는 연구(총 4주)와 14일 단위로 4회 응답하는 연구(총 7주) 중 하나에 참여하게 됩니다. 
+ 만일 귀하가 참여의사를 밝혀 주시면 다음과 같은 과정이 진행될 것입니다.
+ 귀하는 평소 자신의 삶에 대한 만족감, 최근의 정서 경험, 교직 만족도, 교직에 의한 소진을 묻는 문항에 답하게 될 예정이며, 약 10분이 소요 됩니다. 이후 귀하가 추구하는 교사로서의 목표 5개를 자유기술형으로 작성한 뒤, 각각의 목표에 대해 얼마나 잘 달성할 수 있다고 생각하는지, 얼마나 중요하게 여기는 지 등 몇 가지 속성에 대해 응답하게 됩니다. 이 과정 역시 약 10분이 소요되므로 총 20분 이하의 시간이 소요될 것입니다.
+ 또한, 작성하신 5개 목표에 대해서 7일 단위로(혹은 14일 단위로) 목표를 얼마나 달성하였는지 그 진전 수준에 대해 응답하게 됩니다. 진전 수준은 3번 응답하게 될 예정입니다.
+ 마지막 주에는 첫 주와 동일한 문항이 제시되며, 한 달 간(혹은 두 달 간) 귀하에게 어떤 변화가 있었는지를 중심으로 응답하게 됩니다.
+ 
+4. 연구 참여 기간은 얼마나 됩니까?
+
+ 4주 집단 – 7일에 한 번씩 1회 참여하도록 요청받을 것입니다. 1회 참여마다 20분 미만의 시간이 소요됩니다. 첫 참여부터 마지막 참여까지 4주가 소요됩니다.
+ 7주 집단 – 14일에 한 번씩 1회 참여하도록 요청받을 것입니다. 1회 참여마다 20분 미만의 시간이 소요됩니다. 첫 참여부터 마지막 참여까지 7주가 소요됩니다.
+
+5. 참여 도중 그만두어도 됩니까?
+
+예, 귀하는 언제든지 어떠한 불이익 없이 참여 도중에 그만 둘 수 있습니다. 만일 귀하가 연구에 참여하는 것을 그만두고 싶다면 연구 책임자에게 즉시 말씀해 주십시오. 그만두는 경우 입력하신 정보는 즉시 폐기될 예정입니다.
+
+6. 부작용이나 위험요소는 없습니까?
+
+ 선생님의 평소 생각을 묻는 설문이므로, 부작용이나 위험요소는 없습니다.
+
+7. 이 연구에 참여시 참여자에게 이득이 있습니까? 
+
+ 귀하가 이 연구에 참여하는 데 있어서 직접적인 이득은 없습니다. 그러나 귀하가 제공하는 정보는 교사의 안녕감에 대한 이해 수준을 높이는 데 도움이 될 것입니다.
+
+8. 만일 이 연구에 참여하지 않는다면 불이익이 있습니까?
+
+ 귀하는 본 연구에 참여하지 않을 자유가 있습니다. 또한, 귀하가 본 연구에 참여하지 않아도 귀하에게는 어떠한 불이익도 없습니다.
+
+9. 연구에서 얻은 모든 개인 정보의 비밀은 보장됩니까?
+
+개인정보관리책임자는 서울대학교의 이빈(010-7521-2857)입니다. 본 연구에서 수집되는 개인정보는 이름, 전화번호, 성별, 경력, 학교급입니다. 이름과 전화번호는 종단 연구의 특성 상 한 개인의 정보를 누적하기 위한 식별용 ID로 활용되며, 수집이 종료된 이후에는 완전히 삭제될 것입니다. 수집 완료된 정보에는 무작위 ID를 부여한 뒤, 이름과 전화번호를 삭제하여 개인을 식별할 수 없게 됩니다. 또한, 자료 수집 완료 후 연구 참여에 따른 보상(기프티콘) 제공 이후 이름과 전화번호가 폐기될 것입니다. 이러한 개인정보는 연구책임자(이빈)와 지도교수(이선영 교수)에게만 접근이 허락되며, 암호화되어 보관이 될 것입니다. 동의서는 관련 법령에 따라 3년을 보관한 후 폐기할 예정이며, 연구자료의 경우는 서울대학교 연구윤리 지침에 따라 가능한 한 영구 보관할 예정입니다. 저희는 이 연구를 통해 얻은 모든 개인 정보의 비밀 보장을 위해 최선을 다할 것입니다. 이 연구에서 얻어진 개인 정보가 학회지나 학회에 공개 될 때 귀하의 이름 및 기타 개인 정보는 사용되지 않을 것입니다. 그러나 만일 법이 요구하면 귀하의 개인정보는 제공될 수도 있습니다. 또한 모니터 요원, 점검 요원, 생명윤리위원회는 연구참여자의 개인 정보에 대한 비밀 보장을 침해하지 않고 관련규정이 정하는 범위 안에서 본 연구의 실시 절차와 자료의 신뢰성을 검증하기 위해 연구 결과를 직접 열람할 수 있습니다. 귀하가 본 동의서에 서명하는 것은, 이러한 사항에 대하여 사전에 알고 있었으며 이를 허용한다는 동의로 간주될 것입니다.
+
+10. 이 연구에 참가하면 사례가 지급됩니까?
+
+ 귀하의 연구 참여시 감사의 뜻으로 4,000원 정도 되는 작은 기념품이 최대 2회 증정될 것입니다. 1주차 종료 후 1회, 마지막까지 응답을 마치신 분께 1회 추가로 증정됩니다. 1회 이상 참여 후 그만둔 경우, 두 번째 기프티콘은 제공되지 않습니다.
+
+11. 연구에 대한 문의는 어떻게 해야 됩니까?
+
+본 연구에 대해 질문이 있거나 연구 중간에 문제가 생길 시 다음 연구 책임자에게 연락하십시오.
+
+이름:  이빈(서울대학교 사범대학 교육학과, 박사수료)       전화번호:   010-7521-2857 
+
+만일 어느 때라도 연구참여자로서 귀하의 권리에 대한 질문이 있다면 다음의 서울대학교 생명윤리위원회에 연락하십시오.
+서울대학교 생명윤리위원회 (SNUIRB)    전화번호: 02-880-5153    이메일: irb@snu.ac.kr
+동  의  서
+
+연구 과제명 : 교사가 추구하는 목표 내용에 따른 안녕감과 교수 행동의 변화   
+연구 책임자명 : 이빈(서울대학교 사범대학 교육학과, 박사수료)
+
+1. 나는 이 설명서를 읽고 이해했습니다. 
+2. 나는 위험과 이득에 관하여 읽고 이해했습니다.
+3. 나는 이 연구에 참여하는 것에 대하여 자발적으로 동의합니다. 
+4. 나는 이 연구에서 얻어진 나에 대한 정보를 현행 법률과 생명윤리위원회 규정이 허용하는 범위 내에서 연구자가 수집하고 처리하는 데 동의합니다.
+5. 나는 담당 연구자나 위임 받은 대리인이 연구를 진행하거나 결과 관리를 하는 경우와 법률이 규정한 국가 기관 및 서울대학교 생명윤리위원회가 실태 조사를 하는 경우에는 비밀로 유지되는 나의 개인 신상 정보를 확인하는 것에 동의합니다.
+6. 나는 언제라도 이 연구의 참여를 철회할 수 있고 이러한 결정이 나에게 어떠한 해도 되지 않을 것이라는 것을 압니다. 
+
+
+본 연구에 참여하시겠습니까? 
+`
+
+  const term = document.getElementById("terms");
+  term.innerText = termText;
+      }
+
+    initializeTerms();
+    </script>
+  </body>
+</html>

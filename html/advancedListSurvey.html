@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top" />
+    <style>
+      body {
+        background-color: #f0ebf8;
+        font-family: "Noto Sans", sans-serif;
+        padding-block: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        overscroll-behavior-y: contain;
+        padding-bottom: 180px;
+      }
+      .top-bar {
+        background-color: rgb(103, 58, 183);
+        color: rgba(255, 255, 255, 1);
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        height: 10px;
+        left: -1px;
+        position: absolute;
+        top: -1px;
+        width: calc(100% + 2px);
+      }
+      .list-element {
+        font-size: 20px;
+        font-weight: 600;
+      }
+      .container {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .question {
+        font-weight: bold;
+      }
+      .options {
+        margin-left: 20px;
+      }
+      .option-label {
+        display: block;
+        margin-bottom: 5px;
+      }
+      .questionForm {
+        display: none;
+        flex-direction: column;
+        gap: 24px;
+        max-width: 368px;
+      }
+      .question-title-container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 24px;
+        padding: 8px;
+        padding-block: 24px;
+      }
+      .question-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .question-main-title {
+        font-size: 19px;
+        font-weight: 600;
+      }
+      .question-title {
+        font-size: 18px;
+      }
+      .ratingContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .ratingQuestion {
+        width: 120px;
+      }
+      .ratingRange {
+        display: flex;
+        justify-content: space-between;
+        color: #ababab;
+      }
+      .ratings {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+      .radioButton {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+      }
+      .verticalRadioButton {
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-between;
+      }
+      .normalRadioContainer {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+      .return-btn {
+        fontsize: 24px;
+        padding: 10px 20px;
+        background-color: #a0a0a0;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .return-btn:hover {
+        background-color: #b1b1b1;
+      }
+      .submit-btn {
+        padding: 10px 20px;
+        background-color: #7349bd;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .submit-btn:hover {
+        background-color: #6238ac;
+      }
+      .loader-container {
+        display: none;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+      }
+      .loader {
+        display: none;
+        border: 4px solid #f3f3f3; /* 회색 테두리 */
+        border-top: 4px solid #7349bd;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite; /* 회전 애니메이션 */
+      }
+      .return-loader {
+        display: none;
+        border: 4px solid #a0a0a0; /* 회색 테두리 */
+        border-top: 4px solid #b1b1b1;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite; /* 회전 애니메이션 */
+      }
+      .previous-loader {
+        border: 4px solid #f3f3f3; /* 회색 테두리 */
+        border-top: 4px solid #7349bd;
+        border-radius: 50%;
+        width: 120px;
+        height: 120px;
+        animation: spin 1s linear infinite; /* 회전 애니메이션 */
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        } /* 회전 시작점 */
+        100% {
+          transform: rotate(360deg);
+        } /* 회전 종료점 */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="previous-loader" id="previous-loader"></div>
+    <div class="container" id="container">
+      <form class="questionForm" id="questionForm1" name="questionForm1"></form>
+      <form class="questionForm" id="questionForm2" name="questionForm2"></form>
+      <form class="questionForm" id="questionForm3" name="questionForm3"></form>
+      <form class="questionForm" id="questionForm4" name="questionForm4"></form>
+    </div>
+    <div class="loader-container" id="loader-container">
+      <button
+        type="button"
+        class="return-btn"
+        id="return-btn"
+        onclick="onClickReturnButton()"
+        value="returnToPage"
+      >
+        돌아가기
+      </button>
+      <button
+        value="제출"
+        onclick="onClickNextButton(event)"
+        class="submit-btn"
+        id="next-btn"
+      >
+        다음
+      </button>
+      <div class="return-loader" id="return-loader"></div>
+      <div class="loader" id="loader"></div>
+    </div>
+    <script>
+      var reasonFormNumber = 1;
+
+      function isInputAllValid() {
+        const forms = Array.from(document.forms);
+        let isValid = true;
+
+        if (!forms[reasonFormNumber - 1].reportValidity()) {
+          isValid = false;
+        }
+
+        return isValid;
+      }
+
+      function createListElement() {
+        const listContainer = document.createElement("div");
+        listContainer.className = "question-title-container";
+
+        const topBar = document.createElement("div");
+        topBar.className = "top-bar";
+
+        listContainer.appendChild(topBar);
+
+        fruitList.forEach((fruit, index) => {
+          const fruitElement = document.createElement("div");
+          fruitElement.className = "list-element";
+          fruitElement.innerText = `${index + 1}) ${fruit}`;
+
+          listContainer.appendChild(fruitElement);
+        });
+
+        return listContainer;
+      }
+
+      function onClickReturnButton() {
+        if (reasonFormNumber > 1) {
+          const questionForm = document.getElementById(
+            `questionForm${reasonFormNumber}`
+          );
+          questionForm.style.display = "none";
+
+          reasonFormNumber -= 1;
+
+          const pastQuestionForm = document.getElementById(
+            `questionForm${reasonFormNumber}`
+          );
+          pastQuestionForm.style.display = "flex";
+
+          topFunction();
+        } else {
+          document.getElementById("return-btn").style.display = "none";
+          document.getElementById("next-btn").style.display = "none";
+          document.getElementById("return-loader").style.display = "block";
+
+          google.script.run
+            .withSuccessHandler(function (html) {
+              document.open();
+              document.write(html);
+              document.close();
+            })
+            .getListSurveyPage();
+        }
+      }
+
+      function onClickNextButton(event) {
+        event.preventDefault();
+
+        const isValidToSubmit = isInputAllValid();
+
+        if (!isValidToSubmit) {
+          return;
+        }
+
+        if (reasonFormNumber < 4) {
+          const questionForm = document.getElementById(
+            `questionForm${reasonFormNumber}`
+          );
+          questionForm.style.display = "none";
+
+          reasonFormNumber += 1;
+
+          const nextQuestionForm = document.getElementById(
+            `questionForm${reasonFormNumber}`
+          );
+          nextQuestionForm.style.display = "flex";
+
+          topFunction();
+        } else {
+          // show loading
+          document.getElementById("return-btn").style.display = "none";
+          document.getElementById("next-btn").style.display = "none";
+          document.getElementById("loader").style.display = "block";
+
+          const questionResponses = [];
+          const titles = [];
+
+          const forms = Array.from(document.forms);
+
+          forms.forEach((form) => {
+            Array.from(form).forEach((element) => {
+              if (element.type === "radio") {
+                if (element.checked) {
+                  titles.push(element.name);
+                  questionResponses.push(element.value);
+                }
+              } else {
+                titles.push(element.name);
+                questionResponses.push(element.value);
+              }
+            });
+          });
+
+          todayMainResponses = questionResponses;
+          todayMainResponsesTitles = titles;
+
+          google.script.run
+            .withSuccessHandler(function (html) {
+              document.open();
+              document.write(html);
+              document.close();
+            })
+            .getFinishPage();
+        }
+      }
+
+      function createRadioButton(name, value, treeIndex, isTargetQuestion) {
+        const radioButton = document.createElement("div");
+        radioButton.className = "radioButton";
+
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        if (isTargetQuestion) {
+          radio.name = `목표달성만족도${treeIndex}`;
+        } else {
+          radio.name = treeIndex ? `${name}${treeIndex + 1}` : name;
+        }
+        radio.value = value;
+        radio.required = true;
+
+        const label = document.createElement("div");
+        label.innerText = value;
+
+        radioButton.appendChild(label);
+        radioButton.appendChild(radio);
+
+        return radioButton;
+      }
+
+      //here: 점수가 아닌 선택형 질문들 (질문 내용, 고를 수 있는 답변들)
+      //ex) questionForm.appendChild(createNormalRadioQuestion("설문조사를 자주 하시나요?",["자주 한다","가끔 한다","안한다"]));
+      function createNormalRadioQuestion(question, values) {
+        const container = document.createElement("div");
+        container.className = "question-container";
+
+        const questionTitle = document.createElement("div");
+        questionTitle.innerText = question;
+        questionTitle.className = "question-main-title";
+
+        const radioContainer = document.createElement("div");
+        radioContainer.className = "normalRadioContainer";
+
+        values.forEach((value, index) => {
+          const radio = createRadioButton(question, value);
+          radioContainer.appendChild(radio);
+        });
+
+        container.appendChild(questionTitle);
+        container.appendChild(radioContainer);
+
+        return container;
+      }
+
+      //here: 단일 점수 질문 (질문 내용, 점수 개수)
+      //ex) questionForm.appendChild(createRatingQuestion("설문조사를 얼마나 정직하게 하는지 골라주세요", 8));
+      function createRatingQuestion(
+        question,
+        ratingCount,
+        index,
+        treeIndex,
+        isTargetQuestion
+      ) {
+        const ratingContainer = document.createElement("div");
+        ratingContainer.className = "ratingContainer";
+
+        const ratingQuestion = document.createElement("div");
+        ratingQuestion.className = "question-title";
+        ratingQuestion.innerText = index ? `${index}) ${question}` : question;
+
+        const ratingRange = document.createElement("div");
+        ratingRange.innerHTML = "<div>전혀 아니다</div><div>매우 그렇다</div>";
+        ratingRange.className = "ratingRange";
+
+        const ratings = document.createElement("div");
+        ratings.className = "ratings";
+
+        const maxRatingCount = ratingCount ? ratingCount : 9;
+
+        for (let i = 1; i <= maxRatingCount; i++) {
+          if (isTargetQuestion) {
+            const ratingRadio = createRadioButton(
+              question,
+              i,
+              index,
+              isTargetQuestion
+            );
+            ratings.appendChild(ratingRadio);
+          } else {
+            const ratingRadio = createRadioButton(question, i, treeIndex);
+            ratings.appendChild(ratingRadio);
+          }
+        }
+
+        ratingContainer.appendChild(ratingQuestion);
+        ratingContainer.appendChild(ratingRange);
+        ratingContainer.appendChild(ratings);
+
+        return ratingContainer;
+      }
+
+      //here: 대질문과 꼬리 점수 질문이 있는 질문들. (메인 제목, 질문 내용들, 점수 개수)
+      //ex) questionForm.appendChild(createTreeRatingQuestion("어떤 분야의 설문조사를 자주하시는지 알려주세요", ["컴퓨터","심리","음악"], 9));
+      function createTreeRatingQuestion(
+        mainTitle,
+        questions,
+        ratingCount,
+        treeIndex,
+        isTargetQuestion
+      ) {
+        const treeContainer = document.createElement("div");
+        treeContainer.className = "question-container";
+
+        const title = document.createElement("div");
+        title.innerText = mainTitle;
+        title.className = "question-main-title";
+
+        treeContainer.appendChild(title);
+
+        let number = 1;
+        questions.forEach((question, index) => {
+          if (question) {
+            const ratingQuestion = createRatingQuestion(
+              question,
+              ratingCount,
+              number,
+              treeIndex,
+              isTargetQuestion
+            );
+            treeContainer.appendChild(ratingQuestion);
+            number += 1;
+          } else {
+            const spaceElement = document.createElement("br");
+            treeContainer.appendChild(spaceElement);
+          }
+        });
+
+        return treeContainer;
+      }
+
+      function createName(name) {
+        const nameElement = document.createElement("h2");
+        nameElement.innerText = name;
+        nameElement.style.textAlign = "center";
+
+        return nameElement;
+      }
+
+      //here: 작은 질문들을 모아서 전체 질문을 만드는 곳.
+      // 위에 here을 참고로 본 후, 여기서 필요한 질문을 수정해주는 것이 좋습니다.
+      function initializeBigQuestions() {
+        const questionForm1 = document.getElementById("questionForm1");
+        const questionForm2 = document.getElementById("questionForm2");
+        const questionForm3 = document.getElementById("questionForm3");
+        const questionForm4 = document.getElementById("questionForm4");
+
+        const listArray = [];
+
+        //form 1
+        fruitList.forEach((fruit, index) => {
+          const questionTitleContainer = document.createElement("div");
+          questionTitleContainer.className = "question-title-container";
+
+          const topBar = document.createElement("div");
+          topBar.className = "top-bar";
+
+          questionTitleContainer.appendChild(topBar);
+
+          listArray.push(fruit);
+
+          questionTitleContainer.appendChild(createName(fruit));
+
+          questionTitleContainer.appendChild(
+            createTreeRatingQuestion(
+              "나는 내가 세운 이 목표에 대해서…",
+              [
+                "잘 해낼 것으로 기대한다.",
+                "목표의 난이도와 나의 능력을 고려할 때, 잘 이룰 것으로 기대한다.",
+                "현재 교직 생활에 유용하다고 생각한다.",
+                "교직 생활에 당장 어떤 쓸모가 있는지 알겠다.",
+                "미래의 교직 생활에 유용하다고 생각한다.",
+                "미래의 교직 생활에 어떤 쓸모가 있는지 알 것 같다.",
+              ],
+              9,
+              index
+            )
+          );
+
+          questionForm1.appendChild(questionTitleContainer);
+        });
+
+        //form 2
+        const questionTitleForm2Container = document.createElement("div");
+        questionTitleForm2Container.className = "question-title-container";
+        const topBar = document.createElement("div");
+        topBar.className = "top-bar";
+        questionTitleForm2Container.appendChild(topBar);
+        questionTitleForm2Container.appendChild(
+          createTreeRatingQuestion(
+            "각각의 목표를 원하는 만큼 달성했다고 상상해보세요. 각각의 목표를 이루고 나면, 얼마나 만족스러울 것이라고 예상합니까?",
+            listArray,
+            9,
+            undefined,
+            true
+          )
+        );
+        questionForm2.appendChild(questionTitleForm2Container);
+
+        //form 3
+        fruitList.forEach((fruit, index) => {
+          const questionTitleContainer = document.createElement("div");
+          questionTitleContainer.className = "question-title-container";
+
+          const topBar = document.createElement("div");
+          topBar.className = "top-bar";
+
+          questionTitleContainer.appendChild(topBar);
+
+          questionTitleContainer.appendChild(createName(fruit));
+
+          questionTitleContainer.appendChild(
+            createTreeRatingQuestion(
+              "이 목표를 추구하는 이유가 무엇입니까?",
+              [
+                "다른 사람이 나보고 이 일을 하라고 시켰기 때문에",
+                "다른 사람에게 실망을 주지 않기 위해서",
+                "보상이나 혜택을 받기 위해서",
+                "벌이나 부정적인 결과를 피하기 위해서",
+                null,
+                "이 목표를 추구하지 않으면 죄책감이 들 것 같아서",
+                "이 일을 하지 않으면 불안할 것 같아서",
+                "이 목표를 달성하지 못하면 스스로 실망할 것 같아서",
+                null,
+                "이 목표는 내 개인적인 목표와 일치하기 때문에",
+                "이 목표를 추구하는 것은 나의 가치와 잘 맞기 때문에",
+                "이 목표는 나에게 중요하기 때문에",
+                null,
+                "이 목표가 나에게 즐거움을 주기 때문에",
+                "이 목표는 자체로 재미를 주기 때문에",
+                "이 목표를 추구하는 것이 나에게 만족을 주기 때문에",
+              ],
+              9,
+              index
+            )
+          );
+
+          questionForm3.appendChild(questionTitleContainer);
+        });
+
+        //form 4
+        fruitList.forEach((fruit, index) => {
+          const questionTitleContainer = document.createElement("div");
+          questionTitleContainer.className = "question-title-container";
+
+          const topBar = document.createElement("div");
+          topBar.className = "top-bar";
+
+          questionTitleContainer.appendChild(topBar);
+
+          questionTitleContainer.appendChild(createName(fruit));
+
+          questionTitleContainer.appendChild(
+            createTreeRatingQuestion(
+              "이 목표는 궁극적으로 어디에 도움이 된다고 생각합니까?",
+              [
+                "나의 성장과 발전",
+                "학생의 성장과 발전에 기여",
+                "학생이나 학교 구성원과 의미 있는 관계 형성",
+                "금전적 대가, 승진 가산점 등 외적인 보상",
+                "타인으로부터 인정과 명성",
+                "전문가다운 '이미지'를 보여주어 타인으로부터 긍정적인 평가를 얻는 것",
+              ],
+              9,
+              index
+            )
+          );
+
+          questionForm4.appendChild(questionTitleContainer);
+        });
+
+        const loaderContainer = document.getElementById("loader-container");
+        loaderContainer.style.display = "flex";
+
+        const previousLoader = document.getElementById("previous-loader");
+        previousLoader.style.display = "none";
+
+        questionForm1.style.display = "flex";
+      }
+
+      initializeBigQuestions();
+    </script>
+  </body>
+</html>
